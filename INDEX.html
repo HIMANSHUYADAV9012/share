@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5K Followers Buyers</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-r from-indigo-50 to-purple-50 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-6xl bg-white shadow-xl rounded-2xl p-6 sm:p-10">
+    <h1 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-6 text-center">
+      📊 5K Followers Buyers
+    </h1>
+
+    <!-- Copy All Usernames Button -->
+    <div class="flex justify-center mb-6">
+      <button onclick="copyUsernames()"
+        class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-md transition transform hover:scale-105">
+        📋 Copy All Usernames
+      </button>
+    </div>
+
+    <!-- User list -->
+    <div id="userTable" class="space-y-4"></div>
+  </div>
+
+  <script>
+    function getMessage(username) {
+      return `👋 Hi *${username}*,
+
+आपने *5K Followers Package* (₹200) checkout किया था लेकिन payment complete नहीं किया।
+
+✨ सिर्फ आपके लिए *Special Deal*:  
+💎 *5K Followers* अब सिर्फ  *₹99*  में!  
+
+⏳ Offer आज रात तक valid है।  
+📌 Hurry up – Final Chance!  
+
+⚠️ *HI भेजें*, ताकि आपका special discount link unlock हो जाए ||⚠️
+
+*NOTE* - offer for *${username}*`;
+    }
+
+    // Username trim for UI
+    function trimUsername(username) {
+      return username.length > 25 ? username.substring(0, 25) + "..." : username;
+    }
+
+    let globalData = []; // JSON data store karenge
+
+    // Copy all usernames function
+    function copyUsernames() {
+      if (globalData.length === 0) return alert("⚠️ No data found!");
+
+      let formatted = globalData
+        .map((user, index) => {
+          let uname = user.username.replace(/"/g, '');
+          return index === globalData.length - 1 ? `"${uname}"` : `"${uname}",`;
+        })
+        .join("\n");
+
+      navigator.clipboard.writeText(formatted).then(() => {
+        alert("✅ All Usernames Copied!");
+      });
+    }
+
+    // Open WhatsApp chat with message
+    function openWhatsApp(mobile, username) {
+      let msg = encodeURIComponent(getMessage(username));
+      let phone = mobile.replace(/[^0-9]/g, ""); // number clean
+      let url = `https://wa.me/91${phone}?text=${msg}`;
+      window.open(url, "_blank");
+    }
+
+    // Fetch data from purchases.json
+    fetch("purchases.json")
+      .then(res => res.json())
+      .then(data => {
+        globalData = data;
+        let table = document.getElementById("userTable");
+
+        data.forEach((user, index) => {
+          table.innerHTML += `
+            <div class="bg-gray-50 rounded-xl shadow-md p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:shadow-lg transition">
+              
+              <!-- Left side -->
+              <div class="flex items-center gap-4">
+                <span class="hidden sm:block text-lg font-bold text-gray-700 w-8 text-center">${index + 1}</span>
+                <div>
+                  <p class="font-semibold text-gray-900 text-base">@${trimUsername(user.username)}</p>
+                  <p class="text-sm text-gray-600">📱 ${user.mobile}</p>
+                </div>
+              </div>
+
+              <!-- Right side -->
+              <div class="flex flex-wrap gap-2 justify-end">
+                <span class="text-indigo-600 font-bold text-sm sm:text-base self-center">${user.purchases}x</span>
+                <button onclick="openWhatsApp('${user.mobile}', '${user.username}')" 
+                  class="bg-green-500 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-green-600 transition shadow-sm">
+                  💬 Open WhatsApp
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      });
+  </script>
+</body>
+
+</html>
